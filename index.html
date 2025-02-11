@@ -60,13 +60,13 @@
             });
 
             // Display Employee ID in large text
-            document.getElementById("employee-id").innerText = employeeId ? `ID: ${employeeId}` : "ID: N/A";
+            document.getElementById("employee-id").innerText = employeeId ? `ID: ${employeeId}` : "N/A";
 
             // Display Employee Name
             document.getElementById("name").innerText = employeeName ? employeeName : "No Name Provided";
 
             // Display Warehouse Code
-            document.getElementById("warehouse").innerText = warehouseCode ? `Warehouse: ${warehouseCode}` : "Warehouse: N/A";
+            document.getElementById("warehouse").innerText = warehouseCode ? `Warehouse: ${warehouseCode}` : "N/A";
         } else {
             document.getElementById("qrcode").innerHTML = "<p>No data provided</p>";
         }
