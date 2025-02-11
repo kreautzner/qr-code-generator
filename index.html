@@ -17,23 +17,22 @@
             height: 200px;
         }
         #employee-id {
-            font-size: 24px; /* Larger text for Employee ID */
+            font-size: 32px; /* Larger text for Employee ID */
             font-weight: bold;
-            margin-top: 15px;
+            margin-top: 5px;
         }
         #name {
-            font-size: 18px;
+            font-size: 24px;
             margin-top: 5px;
         }
         #warehouse {
-            font-size: 16px;
-            color: gray;
+            font-size: 20px;
             margin-top: 3px;
         }
     </style>
 </head>
 <body>
-    <h2>Employee QR Code</h2>
+    <h2>GROWSARI/h2>
     <div id="qrcode"></div>
     <p id="employee-id"></p>
     <p id="name"></p>
@@ -60,13 +59,13 @@
             });
 
             // Display Employee ID in large text
-            document.getElementById("employee-id").innerText = employeeId ? `ID: ${employeeId}` : "N/A";
+            document.getElementById("employee-id").innerText = employeeId ? `${employeeId}` : "N/A";
 
             // Display Employee Name
             document.getElementById("name").innerText = employeeName ? employeeName : "No Name Provided";
 
             // Display Warehouse Code
-            document.getElementById("warehouse").innerText = warehouseCode ? `Warehouse: ${warehouseCode}` : "N/A";
+            document.getElementById("warehouse").innerText = warehouseCode ? `${warehouseCode}` : "N/A";
         } else {
             document.getElementById("qrcode").innerHTML = "<p>No data provided</p>";
         }
