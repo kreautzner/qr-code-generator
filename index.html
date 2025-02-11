@@ -12,13 +12,21 @@
             margin: 50px;
         }
         #qrcode {
-            margin-top: 20px;
+            margin: 20px auto;
+            width: 200px;
+            height: 200px;
+        }
+        #data-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <h2>Dynamic QR Code Generator</h2>
     <div id="qrcode"></div>
+    <p id="data-text"></p>
 
     <script>
         function getQueryParam(name) {
@@ -26,15 +34,20 @@
             return urlParams.get(name);
         }
 
-        // Get data parameter from URL
-        const data = getQueryParam("data");
+        // Get parameters from the URL
+        const qrData = getQueryParam("data");  // The QR code data
+        const displayName = getQueryParam("name");  // The name to display
 
-        if (data) {
+        if (qrData) {
+            // Generate QR code
             new QRCode(document.getElementById("qrcode"), {
-                text: data,
+                text: qrData,
                 width: 200,
                 height: 200
             });
+
+            // Display the name or default to "Unknown"
+            document.getElementById("data-text").innerText = displayName ? displayName : "No name provided";
         } else {
             document.getElementById("qrcode").innerHTML = "<p>No data provided</p>";
         }
