@@ -3,41 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GROWSARI</title>
+    <title>QR Code Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 50px;
         }
+        #qr-container {
+            display: inline-block;
+            padding: 20px;
+            border: 3px solid black; /* Add border around QR code */
+            border-radius: 10px;
+            background-color: white;
+            margin-top: 20px;
+        }
         #qrcode {
-            margin: 20px auto;
             width: 200px;
             height: 200px;
         }
         #employee-id {
-            font-size: 32px; /* Larger text for Employee ID */
+            font-size: 24px; /* Larger text for Employee ID */
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 15px;
         }
         #name {
-            font-size: 24px;
+            font-size: 18px;
             margin-top: 5px;
         }
         #warehouse {
-            font-size: 20px;
+            font-size: 16px;
             color: gray;
             margin-top: 3px;
+        }
+        #download-btn {
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #download-btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h2>GROWSARI</h2>
-    <div id="qrcode"></div>
-    <p id="employee-id"></p>
-    <p id="name"></p>
-    <p id="warehouse"></p>
+    <h2>Employee QR Code</h2>
+    <div id="qr-container">
+        <div id="qrcode"></div>
+        <p id="employee-id"></p>
+        <p id="name"></p>
+        <p id="warehouse"></p>
+    </div>
+    <button id="download-btn">Download as PNG</button>
 
     <script>
         function getQueryParam(name) {
@@ -60,16 +84,26 @@
             });
 
             // Display Employee ID in large text
-            document.getElementById("employee-id").innerText = employeeId ? `${employeeId}` : "ID: N/A";
+            document.getElementById("employee-id").innerText = employeeId ? `ID: ${employeeId}` : "ID: N/A";
 
             // Display Employee Name
             document.getElementById("name").innerText = employeeName ? employeeName : "No Name Provided";
 
             // Display Warehouse Code
-            document.getElementById("warehouse").innerText = warehouseCode ? `${warehouseCode}` : "Warehouse: N/A";
+            document.getElementById("warehouse").innerText = warehouseCode ? `Warehouse: ${warehouseCode}` : "Warehouse: N/A";
         } else {
             document.getElementById("qrcode").innerHTML = "<p>No data provided</p>";
         }
+
+        // Function to download QR code as PNG
+        document.getElementById("download-btn").addEventListener("click", function() {
+            html2canvas(document.getElementById("qr-container")).then(canvas => {
+                let link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png");
+                link.download = "employee_qr.png";
+                link.click();
+            });
+        });
     </script>
 </body>
 </html>
