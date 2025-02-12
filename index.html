@@ -21,38 +21,29 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 5px;
+            padding: 20px;
             border: 3px solid black;
             border-radius: 10px;
             background-color: white;
-            width: 220px; /* Approximate width for PVC card */
-            height: 340px; /* Approximate height for PVC card */
-            position: relative;
+            margin-top: 20px;
+            width: fit-content;
         }
         #qrcode {
             width: 200px;
             height: 200px;
         }
         #employee-id {
-            font-size: 30px;
+            font-size: 34px;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 15px;
         }
         #name {
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 3px;
-            text-align: center;
-            width: 90%;
-            word-wrap: break-word;
+            font-size: 24px;
+            margin-top: 1px;
         }
         #warehouse {
-            font-size: 14px;
-            color: gray;
-            margin-top: 3px;
-            text-align: center;
-            width: 90%;
-            word-wrap: break-word;
+            font-size: 20px;
+            margin-top: 1px;
         }
         #download-btn {
             margin-top: 20px;
@@ -96,8 +87,8 @@
             // Generate QR code
             new QRCode(document.getElementById("qrcode"), {
                 text: qrData,
-                width: 150,
-                height: 150
+                width: 200,
+                height: 200
             });
 
             // Display Employee ID in large text
