@@ -33,16 +33,16 @@
             height: 200px;
         }
         #employee-id {
-            font-size: 24px;
+            font-size: 36px;
             font-weight: bold;
             margin-top: 15px;
         }
         #name {
-            font-size: 18px;
+            font-size: 24px;
             margin-top: 5px;
         }
         #warehouse {
-            font-size: 16px;
+            font-size: 20px;
             color: gray;
             margin-top: 3px;
         }
@@ -99,17 +99,18 @@
             document.getElementById("name").innerText = employeeName ? employeeName : "No Name Provided";
 
             // Display Warehouse Code
-            document.getElementById("warehouse").innerText = warehouseCode ? `${warehouseCode}` : "Warehouse: N/A";
+            document.getElementById("warehouse").innerText = warehouseCode ? `${warehouseCode}` : "N/A";
         } else {
             document.getElementById("qrcode").innerHTML = "<p>No data provided</p>";
         }
 
-        // Function to download QR code as PNG
+        // Function to download QR code as PNG with Employee Name
         document.getElementById("download-btn").addEventListener("click", function() {
             html2canvas(document.getElementById("qr-container")).then(canvas => {
                 let link = document.createElement("a");
+                let fileName = employeeName ? employeeName.replace(/\s+/g, "_") + ".png" : "employee_qr.png";
                 link.href = canvas.toDataURL("image/png");
-                link.download = "employee_qr.png";
+                link.download = fileName;
                 link.click();
             });
         });
