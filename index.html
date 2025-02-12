@@ -21,30 +21,38 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
             border: 3px solid black;
             border-radius: 10px;
             background-color: white;
-            margin-top: 20px;
-            width: fit-content;
+            width: 336px; /* Approximate width for PVC card */
+            height: 212px; /* Approximate height for PVC card */
+            position: relative;
         }
         #qrcode {
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 100px;
         }
         #employee-id {
-            font-size: 36px;
+            font-size: 34px;
             font-weight: bold;
-            margin-top: 5px;
+            margin-top: 1px;
         }
         #name {
             font-size: 20px;
+            font-weight: bold;
             margin-top: 1px;
+            text-align: center;
+            width: 90%;
+            word-wrap: break-word;
         }
         #warehouse {
-            font-size: 20px;
+            font-size: 18px;
             color: gray;
             margin-top: 1px;
+            text-align: center;
+            width: 90%;
+            word-wrap: break-word;
         }
         #download-btn {
             margin-top: 20px;
@@ -88,12 +96,12 @@
             // Generate QR code
             new QRCode(document.getElementById("qrcode"), {
                 text: qrData,
-                width: 200,
-                height: 200
+                width: 100,
+                height: 100
             });
 
             // Display Employee ID in large text
-            document.getElementById("employee-id").innerText = employeeId ? `${employeeId}` : "ID: N/A";
+            document.getElementById("employee-id").innerText = employeeId ? `${employeeId}` : "N/A";
 
             // Display Employee Name
             document.getElementById("name").innerText = employeeName ? employeeName : "No Name Provided";
