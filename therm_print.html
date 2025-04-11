@@ -69,7 +69,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Data will be inserted here -->
+        <!-- Data will go here -->
       </tbody>
     </table>
 
@@ -89,19 +89,36 @@
   <script>
     const REDASH_API_URL = 'https://data.growsari.com/api/queries/41832/results.json?api_key=hid9Z7w6rQkOSKKryXdmwzfAkjt9QsiTxUKGLkMQ';
 
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
     async function loadReceiptData() {
+      const po = getQueryParam('po');
+      if (!po) {
+        alert('Missing PO number in URL. Use ?po=PO123456');
+        return;
+      }
+
+      document.getElementById('po-number').textContent = po;
+
       const response = await fetch(REDASH_API_URL);
       const data = await response.json();
-      const rows = data.query_result.data.rows;
+      const allRows = data.query_result.data.rows;
+
+      // Filter only rows that match the PO number
+      const filteredRows = allRows.filter(row => row.po_number === po);
+
+      if (filteredRows.length === 0) {
+        alert('No data found for PO: ' + po);
+        return;
+      }
 
       const tbody = document.querySelector('#items-table tbody');
       let total = 0;
 
-      // Get PO number from the first row
-      const poNumber = rows.length > 0 ? rows[0].po_number : 'N/A';
-      document.getElementById('po-number').textContent = poNumber;
-
-      rows.forEach(row => {
+      filteredRows.forEach(row => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${row.item}</td>
@@ -113,9 +130,8 @@
       });
 
       document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
-      
-      //Optionally auto-print
-      // window.print();
+
+      // Optional: window.print();
     }
 
     loadReceiptData();
