@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Receipt</title>
+  <style>
+    body {
+      width: 80mm;
+      font-family: monospace;
+      font-size: 12px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .receipt {
+      width: 80mm;
+      padding: 5px;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    .line {
+      border-top: 1px dashed #000;
+      margin: 5px 0;
+    }
+
+    .items th, .items td {
+      padding: 2px 0;
+    }
+
+    .items {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .items th {
+      border-bottom: 1px solid #000;
+    }
+
+    .items td:last-child,
+    .items th:last-child {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="center bold">MY STORE</div>
+    <div class="center">123 Street, City</div>
+    <div class="center">Tel: 123-456-7890</div>
+    <div class="line"></div>
+
+    <div><strong>PO Number:</strong> <span id="po-number">Loading...</span></div>
+
+    <div class="line"></div>
+
+    <table class="items" id="items-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be inserted here -->
+      </tbody>
+    </table>
+
+    <div class="line"></div>
+
+    <table width="100%">
+      <tr>
+        <td class="bold">Total</td>
+        <td class="bold" id="grand-total" style="text-align:right">$0.00</td>
+      </tr>
+    </table>
+
+    <div class="line"></div>
+    <div class="center">Thank you!</div>
+  </div>
+
+  <script>
+    const REDASH_API_URL = 'https://your-redash-instance.com/api/queries/123/results.json?api_key=YOUR_API_KEY';
+
+    async function loadReceiptData() {
+      const response = await fetch(REDASH_API_URL);
+      const data = await response.json();
+      const rows = data.query_result.data.rows;
+
+      const tbody = document.querySelector('#items-table tbody');
+      let total = 0;
+
+      // Get PO number from the first row
+      const poNumber = rows.length > 0 ? rows[0].po_number : 'N/A';
+      document.getElementById('po-number').textContent = poNumber;
+
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.item}</td>
+          <td>${row.quantity} pcs</td>
+          <td>$${parseFloat(row.total).toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+        total += parseFloat(row.total);
+      });
+
+      document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+      
+      //Optionally auto-print
+      // window.print();
+    }
+
+    loadReceiptData();
+  </script>
+</body>
+</html>
