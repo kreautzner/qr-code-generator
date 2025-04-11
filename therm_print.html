@@ -87,31 +87,36 @@
   </div>
 
   <script>
-    const REDASH_API_URL = 'https://data.growsari.com/api/queries/41832/results.json?api_key=hid9Z7w6rQkOSKKryXdmwzfAkjt9QsiTxUKGLkMQ';
+  const REDASH_API_URL = 'https://data.growsari.com/api/queries/41832/results.json?api_key=hid9Z7w6rQkOSKKryXdmwzfAkjt9QsiTxUKGLkMQ';
 
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  async function loadReceiptData() {
+    const po = getQueryParam('po');
+    if (!po) {
+      alert('Missing ?po=... parameter in the URL.');
+      return;
     }
 
-    async function loadReceiptData() {
-      const po = getQueryParam('po');
-      if (!po) {
-        alert('Missing PO number in URL. Use ?po=PO123456');
-        return;
-      }
+    document.getElementById('po-number').textContent = po;
 
-      document.getElementById('po-number').textContent = po;
-
+    try {
       const response = await fetch(REDASH_API_URL);
       const data = await response.json();
-      const allRows = data.query_result.data.rows;
 
-      // Filter only rows that match the PO number
+      console.log("Full Redash response:", data);
+
+      const allRows = data?.query_result?.data?.rows || [];
+      console.log("All rows:", allRows);
+
       const filteredRows = allRows.filter(row => row.po_number === po);
+      console.log("Filtered rows:", filteredRows);
 
       if (filteredRows.length === 0) {
-        alert('No data found for PO: ' + po);
+        alert('No data found for PO number: ' + po);
         return;
       }
 
@@ -130,11 +135,14 @@
       });
 
       document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
-
-      // Optional: window.print();
+    } catch (err) {
+      console.error("Error fetching or parsing data:", err);
+      alert("Failed to load data. Check console for details.");
     }
+  }
 
-    loadReceiptData();
-  </script>
+  loadReceiptData();
+</script>
+
 </body>
 </html>
