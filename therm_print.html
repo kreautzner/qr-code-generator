@@ -51,9 +51,7 @@
 </head>
 <body>
   <div class="receipt">
-    <div class="center bold">GROWSARI ENTERPRISE</div>
-    <div class="center">123 Street, City</div>
-    <div class="center">Tel: 123-456-7890</div>
+    <div class="center bold">GROWSARI ENTERPRISE, INC.</div>
     <div class="line"></div>
 
     <div><strong>PO Number:</strong> <span id="po-number">Loading...</span></div>
@@ -144,7 +142,8 @@
       total += parseFloat(row.total);
     });
 
-    document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('grand-total').textContent = `${total.toFixed(2)}`;
+    window.print();
   } catch (err) {
     console.error("Error fetching or parsing data:", err);
     alert("Failed to load data. Check console for details.");
