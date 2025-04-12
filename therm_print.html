@@ -111,7 +111,7 @@
 
       const allRows = data?.query_result?.data?.rows || [];
       console.log("All rows:", allRows);
-
+      console.log("Available PO numbers:", allRows.map(row => row.po_number));
       const filteredRows = allRows.filter(row => row.po_number === po);
       console.log("Filtered rows:", filteredRows);
 
