@@ -4,18 +4,6 @@
   <meta charset="UTF-8">
   <title>Receipt</title>
   <style>
-    @media print {
-  @page {
-    size: 80mm auto;
-    margin: 0;
-  }
-
-  body {
-    margin: 0;
-    padding: 0;
-  }
-}
-
     body {
       width: 80mm;
       font-family: monospace;
@@ -27,6 +15,9 @@
     .receipt {
       width: 80mm;
       padding: 5px;
+      page-break-before: avoid;
+      page-break-after: avoid;
+      page-break-inside: avoid;
     }
 
     .center {
@@ -59,17 +50,35 @@
     .items th:last-child {
       text-align: right;
     }
+
+    @media print {
+      @page {
+        size: 80mm auto;
+        margin: 0;
+      }
+
+      html, body {
+        height: auto;
+        margin: 0;
+        padding: 0;
+      }
+
+      .receipt {
+        page-break-inside: avoid;
+        page-break-after: avoid;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="receipt">
-    <div class="center bold">GROWSARI ENTERPRISE, INC.</div>
+    <div class="center bold">MY STORE</div>
+    <div class="center">123 Street, City</div>
+    <div class="center">Tel: 123-456-7890</div>
     <div class="line"></div>
 
     <div><strong>PO Number:</strong> <span id="po-number">Loading...</span></div>
     <div><strong>Date:</strong> <span id="date-time">Loading...</span></div>
-    <div class="line"></div>
-
 
     <div class="line"></div>
 
@@ -82,7 +91,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Data will go here -->
+        <!-- Receipt rows will go here -->
       </tbody>
     </table>
 
@@ -108,60 +117,63 @@
     }
 
     async function loadReceiptData() {
-  const po = getQueryParam('po');
-  if (!po) {
-    alert('Missing ?po=... parameter in the URL.');
-    return;
-  }
+      const po = getQueryParam('po');
+      if (!po) {
+        alert('Missing ?po=... parameter in the URL.');
+        return;
+      }
 
-  document.getElementById('po-number').textContent = po;
+      document.getElementById('po-number').textContent = po;
 
-  // ⏰ Set current date and time
-  const now = new Date();
-  const formattedDate = now.toLocaleString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-  document.getElementById('date-time').textContent = formattedDate;
+      // Insert date and time
+      const now = new Date();
+      const formattedDate = now.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      document.getElementById('date-time').textContent = formattedDate;
 
-  try {
-    const response = await fetch(REDASH_API_URL);
-    const data = await response.json();
+      try {
+        const response = await fetch(REDASH_API_URL);
+        const data = await response.json();
 
-    const allRows = data?.query_result?.data?.rows || [];
-    const filteredRows = allRows.filter(row => String(row.po_number) === po.trim());
+        const allRows = data?.query_result?.data?.rows || [];
+        const filteredRows = allRows.filter(row => String(row.po_number).trim() === po.trim());
 
-    if (filteredRows.length === 0) {
-      alert('No data found for PO number: ' + po);
-      return;
+        if (filteredRows.length === 0) {
+          alert('No data found for PO number: ' + po);
+          return;
+        }
+
+        const tbody = document.querySelector('#items-table tbody');
+        let total = 0;
+
+        filteredRows.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.item}</td>
+            <td>${row.quantity} pcs</td>
+            <td>$${parseFloat(row.total).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+          total += parseFloat(row.total);
+        });
+
+        document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+
+        // Trigger print after rendering
+        setTimeout(() => {
+          window.print();
+        }, 500); // Give the DOM time to update
+      } catch (err) {
+        console.error("Error fetching or parsing data:", err);
+        alert("Failed to load data. Check console for details.");
+      }
     }
-
-    const tbody = document.querySelector('#items-table tbody');
-    let total = 0;
-
-    filteredRows.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${row.item}</td>
-        <td>${row.quantity}</td>
-        <td>${parseFloat(row.total).toFixed(2)}</td>
-      `;
-      tbody.appendChild(tr);
-      total += parseFloat(row.total);
-    });
-
-    document.getElementById('grand-total').textContent = `${total.toFixed(2)}`;
-    window.print();
-  } catch (err) {
-    console.error("Error fetching or parsing data:", err);
-    alert("Failed to load data. Check console for details.");
-  }
-}
-
 
     loadReceiptData();
   </script>
