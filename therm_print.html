@@ -72,9 +72,7 @@
 </head>
 <body>
   <div class="receipt">
-    <div class="center bold">MY STORE</div>
-    <div class="center">123 Street, City</div>
-    <div class="center">Tel: 123-456-7890</div>
+    <div class="center bold">GROWSARI ENTERPRISE</div>
     <div class="line"></div>
 
     <div><strong>PO Number:</strong> <span id="po-number">Loading...</span></div>
@@ -156,14 +154,14 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${row.item}</td>
-            <td>${row.quantity} pcs</td>
-            <td>$${parseFloat(row.total).toFixed(2)}</td>
+            <td>${row.quantity} </td>
+            <td>${parseFloat(row.total).toFixed(2)}</td>
           `;
           tbody.appendChild(tr);
           total += parseFloat(row.total);
         });
 
-        document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+        document.getElementById('grand-total').textContent = `${total.toFixed(2)}`;
 
         // Trigger print after rendering
         setTimeout(() => {
