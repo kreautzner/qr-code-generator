@@ -107,73 +107,55 @@
   </div>
 
   <script>
-    const REDASH_API_URL = 'https://therm-printer.bill-galvez.workers.dev';
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
 
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+  async function loadReceiptData() {
+    const po = getQueryParam('po');
+    if (!po) {
+      alert('Missing ?po=... parameter in the URL.');
+      return;
     }
 
-    async function loadReceiptData() {
-      const po = getQueryParam('po');
-      if (!po) {
-        alert('Missing ?po=... parameter in the URL.');
-        return;
-      }
+    document.getElementById('po-number').textContent = po;
 
-      document.getElementById('po-number').textContent = po;
+    // ✅ Updated: Pass PO in URL to your Cloudflare Worker
+    const response = await fetch(`https://therm-printer.bill-galvez.workers.dev?po=${po}`);
+    const data = await response.json();
 
-      // Insert date and time
-      const now = new Date();
-      const formattedDate = now.toLocaleString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      document.getElementById('date-time').textContent = formattedDate;
+    const allRows = data?.query_result?.data?.rows || [];
+    const filteredRows = allRows.filter(row => row.po_number == po);
 
-      try {
-        const response = await fetch(REDASH_API_URL);
-        const data = await response.json();
-
-        const allRows = data?.query_result?.data?.rows || [];
-        const filteredRows = allRows.filter(row => String(row.po_number).trim() === po.trim());
-
-        if (filteredRows.length === 0) {
-          alert('No data found for PO number: ' + po);
-          return;
-        }
-
-        const tbody = document.querySelector('#items-table tbody');
-        let total = 0;
-
-        filteredRows.forEach(row => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${row.item}</td>
-            <td>${row.quantity}</td>
-            <td>${parseFloat(row.total).toFixed(2)}</td>
-          `;
-          tbody.appendChild(tr);
-          total += parseFloat(row.total);
-        });
-
-        document.getElementById('grand-total').textContent = `${total.toFixed(2)}`;
-
-        // Trigger print after rendering
-        setTimeout(() => {
-          window.print();
-        }, 500); // Give the DOM time to update
-      } catch (err) {
-        console.error("Error fetching or parsing data:", err);
-        alert("Failed to load data. Check console for details.");
-      }
+    if (filteredRows.length === 0) {
+      alert('No data found for PO number: ' + po);
+      return;
     }
 
-    loadReceiptData();
-  </script>
+    const tbody = document.querySelector('#items-table tbody');
+    let total = 0;
+
+    filteredRows.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.item}</td>
+        <td>${row.quantity} pcs</td>
+        <td>$${parseFloat(row.total).toFixed(2)}</td>
+      `;
+      tbody.appendChild(tr);
+      total += parseFloat(row.total);
+    });
+
+    document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('date-time').textContent = new Date().toLocaleString();
+
+    // ✅ Auto print after data loads
+    window.print();
+  }
+
+  loadReceiptData();
+</script>
+
 </body>
 </html>
