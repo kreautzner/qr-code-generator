@@ -72,7 +72,9 @@
 </head>
 <body>
   <div class="receipt">
-    <div class="center bold">GROWSARI ENTERPRISE</div>
+    <div class="center bold">MY STORE</div>
+    <div class="center">123 Street, City</div>
+    <div class="center">Tel: 123-456-7890</div>
     <div class="line"></div>
 
     <div><strong>PO Number:</strong> <span id="po-number">Loading...</span></div>
@@ -98,7 +100,7 @@
     <table width="100%">
       <tr>
         <td class="bold">Total</td>
-        <td class="bold" id="grand-total" style="text-align:right">0.00</td>
+        <td class="bold" id="grand-total" style="text-align:right">$0.00</td>
       </tr>
     </table>
 
@@ -107,55 +109,73 @@
   </div>
 
   <script>
-  function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-  }
+    const REDASH_API_URL = 'https://therm-printer.bill-galvez.workers.dev';
 
-  async function loadReceiptData() {
-    const po = getQueryParam('po');
-    if (!po) {
-      alert('Missing ?po=... parameter in the URL.');
-      return;
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
     }
 
-    document.getElementById('po-number').textContent = po;
+    async function loadReceiptData() {
+      const po = getQueryParam('po');
+      if (!po) {
+        alert('Missing ?po=... parameter in the URL.');
+        return;
+      }
 
-    // ✅ Updated: Pass PO in URL to your Cloudflare Worker
-    const response = await fetch(`https://therm-printer.bill-galvez.workers.dev?po=${po}`);
-    const data = await response.json();
+      document.getElementById('po-number').textContent = po;
 
-    const allRows = data?.query_result?.data?.rows || [];
-    const filteredRows = allRows.filter(row => row.po_number == po);
+      // Insert date and time
+      const now = new Date();
+      const formattedDate = now.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      document.getElementById('date-time').textContent = formattedDate;
 
-    if (filteredRows.length === 0) {
-      alert('No data found for PO number: ' + po);
-      return;
+      try {
+        const response = await fetch(REDASH_API_URL);
+        const data = await response.json();
+
+        const allRows = data?.query_result?.data?.rows || [];
+        const filteredRows = allRows.filter(row => String(row.po_number).trim() === po.trim());
+
+        if (filteredRows.length === 0) {
+          alert('No data found for PO number: ' + po);
+          return;
+        }
+
+        const tbody = document.querySelector('#items-table tbody');
+        let total = 0;
+
+        filteredRows.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.item}</td>
+            <td>${row.quantity} pcs</td>
+            <td>$${parseFloat(row.total).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+          total += parseFloat(row.total);
+        });
+
+        document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
+
+        // Trigger print after rendering
+        setTimeout(() => {
+          window.print();
+        }, 500); // Give the DOM time to update
+      } catch (err) {
+        console.error("Error fetching or parsing data:", err);
+        alert("Failed to load data. Check console for details.");
+      }
     }
 
-    const tbody = document.querySelector('#items-table tbody');
-    let total = 0;
-
-    filteredRows.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${row.item}</td>
-        <td>${row.quantity} pcs</td>
-        <td>$${parseFloat(row.total).toFixed(2)}</td>
-      `;
-      tbody.appendChild(tr);
-      total += parseFloat(row.total);
-    });
-
-    document.getElementById('grand-total').textContent = `$${total.toFixed(2)}`;
-    document.getElementById('date-time').textContent = new Date().toLocaleString();
-
-    // ✅ Auto print after data loads
-    window.print();
-  }
-
-  loadReceiptData();
-</script>
-
+    loadReceiptData();
+  </script>
 </body>
 </html>
