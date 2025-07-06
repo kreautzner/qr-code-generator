@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Barcode Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #barcode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 3px solid black;
+            border-radius: 10px;
+            background-color: white;
+            margin-top: 20px;
+            width: 300px;
+            height: 180px;
+        }
+        svg {
+            margin-top: 10px;
+        }
+        #product-id {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        #product-name {
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        #download-btn {
+            margin-top: 20px;
+            padding: 12px 20px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #download-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h2>Product Barcode Generator</h2>
+    <div id="barcode-container">
+        <p id="product-id"></p>
+        <p id="product-name"></p>
+        <svg id="barcode"></svg>
+    </div>
+    <button id="download-btn">Download as PNG</button>
+
+    <script>
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Get parameters from URL
+        const barcodeData = getQueryParam("data"); // Barcode value (e.g., SKU or ID)
+        const productId = getQueryParam("id");
+        const productName = getQueryParam("name");
+
+        if (barcodeData) {
+            // Generate barcode
+            JsBarcode("#barcode", barcodeData, {
+                format: "CODE128",
+                width: 2,
+                height: 60,
+                displayValue: true
+            });
+
+            document.getElementById("product-id").innerText = productId ? `ID: ${productId}` : "No Product ID";
+            document.getElementById("product-name").innerText = productName ? productName : "No Product Name";
+        } else {
+            document.getElementById("barcode-container").innerHTML = "<p>No barcode data provided</p>";
+        }
+
+        // Download barcode section as PNG
+        document.getElementById("download-btn").addEventListener("click", function() {
+            html2canvas(document.getElementById("barcode-container")).then(canvas => {
+                let link = document.createElement("a");
+                let fileName = productName ? productName.replace(/\s+/g, "_") + "_barcode.png" : "product_barcode.png";
+                link.href = canvas.toDataURL("image/png");
+                link.download = fileName;
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
